@@ -81,6 +81,10 @@ app.post("/api/admin/signup", async (req, res) => {
   const existing = await Admin.findOne({ email });
   if (existing)
     return res.status(400).send({ message: "Admin already exists" });
+  if (password.length < 8) {
+    return res.status(400).send({ message: "Password too short" });
+  }
+  
 
   const hashed = await bcrypt.hash(password, 10);
   await Admin.create({ email, password: hashed });
@@ -113,7 +117,7 @@ app.post("/api/student/login", async (req, res) => {
 
   const found = await Whitelist.findOne({ matric });
   if (!found) {
-    return res.status(400).send({ message: "Matric number not whitelisted" });
+    return res.status(400).send({ message: "You are not a student of Surveying and Geo-Informatics" });
   }
 
   const alreadyVoted = await Vote.findOne({ matric });
@@ -188,7 +192,7 @@ app.delete("/api/admin/whitelist/:matric", verifyToken, async (req, res) => {
 
 // Generate Link
 app.post("/api/admin/generate-link", verifyToken, async (req, res) => {
-  const url = `https://your-domain.com/vote/${uuidv4()}`;
+  const url = `https://extraordinary-sprite-215820.netlify.app/vote/${uuidv4()}`;
   await Link.create({ url });
   res.send({ message: "Link generated successfully" });
 });
@@ -199,7 +203,7 @@ app.get("/api/admin/links", verifyToken, async (req, res) => {
 });
 
 // Results
-app.get("/api/results", async (req, res) => {
+/*app.get("/api/results", async (req, res) => {
   const candidates = await Candidate.find();
   const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
   res.send({
@@ -212,7 +216,7 @@ app.get("/api/results", async (req, res) => {
     })),
     totalVotes,
   });
-});
+});*/
 
 app.get("/api/admin/results", verifyToken, async (req, res) => {
   const candidates = await Candidate.find();
