@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Voting System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button onclick="showPage('login')">Student Login</button>
+            <button onclick="showPage('admin-login')">Admin Login</button>
+            <button onclick="showPage('admin-signup')">Admin Signup</button>
+            <button onclick="showPage('results')" id="resultsBtn">Results</button>
+        </div>
+
+        <!-- Student Login Page -->
+        <div id="login" class="page active">
+            <h1>Student Voting Portal</h1>
+            <div class="form-group">
+                <label for="email">School Email:</label>
+                <input type="email" id="email" placeholder="Enter your school email">
+            </div>
+            <div class="form-group">
+                <label for="matric">Matric Number:</label>
+                <input type="text" id="matric" placeholder="Enter your matric number (must start with SVG)">
+            </div>
+            <button onclick="studentLogin()">Login to Vote</button>
+            <div id="loginMessage"></div>
+        </div>
+
+        <!-- Voting Page -->
+        <div id="voting" class="page">
+            <h1>Cast Your Vote</h1>
+            <div id="candidatesList"></div>
+            <button onclick="submitVote()" id="submitVoteBtn" disabled>Submit Vote</button>
+            <div id="voteMessage"></div>
+        </div>
+
+        <!-- Admin Signup Page -->
+        <div id="admin-signup" class="page">
+            <h1>Admin Registration</h1>
+            <div class="form-group">
+                <label for="adminEmail">Admin Email:</label>
+                <input type="email" id="adminEmail" placeholder="Enter admin email">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password:</label>
+                <input type="password" id="adminPassword" placeholder="Enter password">
+            </div>
+            <div class="form-group">
+                <label for="adminConfirmPassword">Confirm Password:</label>
+                <input type="password" id="adminConfirmPassword" placeholder="Confirm password">
+            </div>
+            <button onclick="adminSignup()">Create Admin Account</button>
+            <div id="signupMessage"></div>
+        </div>
+
+        <!-- Admin Login Page -->
+        <div id="admin-login" class="page">
+            <h1>Admin Login</h1>
+            <div class="form-group">
+                <label for="adminLoginEmail">Admin Email:</label>
+                <input type="email" id="adminLoginEmail" placeholder="Enter admin email">
+            </div>
+            <div class="form-group">
+                <label for="adminLoginPassword">Password:</label>
+                <input type="password" id="adminLoginPassword" placeholder="Enter password">
+            </div>
+            <button onclick="adminLogin()">Login</button>
+            <div id="adminLoginMessage"></div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-panel" class="page">
+            <h1>Admin Panel</h1>
+            
+            <div class="nav-buttons">
+                <button onclick="showAdminSection('candidates')">Manage Candidates</button>
+                <button onclick="showAdminSection('whitelist')">Manage Whitelist</button>
+                <button onclick="showAdminSection('links')">Generate Links</button>
+                <button onclick="showAdminSection('admin-results')">View Results</button>
+                <button onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Candidates Management -->
+            <div id="candidates" class="admin-section">
+                <h2>Manage Candidates</h2>
+                <div class="candidate-form">
+                    <h3>Add New Candidate</h3>
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label for="candidateName">Name:</label>
+                            <input type="text" id="candidateName" placeholder="Candidate name">
+                        </div>
+                        <div class="form-group">
+                            <label for="candidatePost">Post:</label>
+                            <input type="text" id="candidatePost" placeholder="Position/Post">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="candidateDescription">Description:</label>
+                        <textarea id="candidateDescription" placeholder="Candidate description/manifesto" rows="3"></textarea>
+                    </div>
+                    <button onclick="addCandidate()">Add Candidate</button>
+                </div>
+                <div id="candidatesMessage"></div>
+                <div id="candidatesList-admin"></div>
+            </div>
+
+            <!-- Whitelist Management -->
+            <div id="whitelist" class="admin-section" style="display:none;">
+                <h2>Manage Whitelist</h2>
+                <div class="form-group">
+                    <label for="newMatricNumber">Add Matric Number:</label>
+                    <input type="text" id="newMatricNumber" placeholder="Enter matric number (must start with SVG)">
+                </div>
+                <button onclick="addToWhitelist()">Add to Whitelist</button>
+                
+                <div class="form-group">
+                    <label for="bulkMatricNumbers">Bulk Add (one per line):</label>
+                    <textarea id="bulkMatricNumbers" placeholder="SVG001&#10;SVG002&#10;SVG003" rows="5"></textarea>
+                </div>
+                <button onclick="bulkAddToWhitelist()">Bulk Add to Whitelist</button>
+                
+                <div id="whitelistMessage"></div>
+                <h3>Current Whitelist:</h3>
+                <div id="whitelistDisplay"></div>
+            </div>
+
+            <!-- Generate Links -->
+            <div id="links" class="admin-section" style="display:none;">
+                <h2>Generate Voting Links</h2>
+                <button onclick="generateVotingLink()">Generate New Voting Link</button>
+                <div id="linkMessage"></div>
+                <div id="generatedLinks"></div>
+            </div>
+
+            <!-- Admin Results -->
+            <div id="admin-results" class="admin-section" style="display:none;">
+                <h2>Voting Results</h2>
+                <button onclick="refreshResults()">Refresh Results</button>
+                <div id="adminResultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Public Results Page -->
+        <div id="results" class="page">
+            <h1>Voting Results</h1>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
