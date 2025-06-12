@@ -27,7 +27,7 @@ const EMAIL_HOST = process.env.EMAIL_HOST || "smtp.gmail.com"; // or your email 
 const EMAIL_PORT = process.env.EMAIL_PORT || 587;
 
 // Create nodemailer transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: EMAIL_PORT,
   secure: false, // true for 465, false for other ports
