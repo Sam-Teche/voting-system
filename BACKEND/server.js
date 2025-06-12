@@ -1,4 +1,5 @@
-// File: server.js
+// File: BACKEND/server.js
+
 require("dotenv").config();
 
 const express = require("express");
@@ -12,11 +13,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Replace with your MongoDB connection string
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// Load environment variables
+const MONGODB_URI = process.env.MONGODB_URI;
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // SCHEMAS
 const AdminSchema = new mongoose.Schema({
@@ -57,7 +66,7 @@ const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) return res.status(401).send({ message: "Unauthorized" });
 
-  jwt.verify(token, "secretkey", (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) return res.status(401).send({ message: "Invalid token" });
     req.userId = decoded.id;
     next();
@@ -88,7 +97,7 @@ app.post("/api/admin/login", async (req, res) => {
   const valid = await bcrypt.compare(password, admin.password);
   if (!valid) return res.status(400).send({ message: "Invalid credentials" });
 
-  const token = jwt.sign({ id: admin._id }, "secretkey");
+  const token = jwt.sign({ id: admin._id }, JWT_SECRET);
   res.send({ message: "Login successful", token });
 });
 
@@ -221,6 +230,6 @@ app.get("/api/admin/results", verifyToken, async (req, res) => {
 });
 
 // START SERVER
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
