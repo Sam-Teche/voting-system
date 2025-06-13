@@ -28,6 +28,7 @@ const EMAIL_PORT = process.env.EMAIL_PORT || 587;
 
 // Create nodemailer transporter
 const transporter = nodemailer.createTransport({
+  service : 'gmail',
   host: EMAIL_HOST,
   port: EMAIL_PORT,
   secure: false, // true for 465, false for other ports
