@@ -28,15 +28,19 @@ const EMAIL_PORT = process.env.EMAIL_PORT || 587;
 
 // Create nodemailer transporter
 const transporter = nodemailer.createTransport({
-  service : 'gmail',
+  service: "gmail", // or remove this line if using other providers
   host: EMAIL_HOST,
-  port: EMAIL_PORT,
+  port: parseInt(EMAIL_PORT),
   secure: false, // true for 465, false for other ports
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
+
 
 // Connect to MongoDB
 mongoose
