@@ -1,0 +1,42 @@
+const nodemailer = require("nodemailer");
+
+// Email configuration - Add these to your .env file
+const EMAIL_USER = process.env.EMAIL_USER; // your email
+const EMAIL_PASS = process.env.EMAIL_PASS; // your email password or app password
+const EMAIL_HOST = process.env.EMAIL_HOST || "smtp.gmail.com"; // or your email provider's SMTP
+const EMAIL_PORT = process.env.EMAIL_PORT || 587;
+
+// Create nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail", // or remove this line if using other providers
+  host: EMAIL_HOST,
+  port: parseInt(EMAIL_PORT),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+// Email sending function
+const sendEmail = async (to, subject, html) => {
+  try {
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: to,
+      subject: subject,
+      html: html,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Email sending error:", error);
+    return false;
+  }
+};
+
+module.exports = { sendEmail };
