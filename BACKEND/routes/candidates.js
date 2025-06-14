@@ -1,5 +1,5 @@
 const express = require("express");
-const { Candidate, Vote, StudentVerification } = require("../models");
+const { Candidate, Vote, StudentVerification, Admin } = require("../models");
 const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
@@ -10,10 +10,17 @@ router.get("/candidates", async (req, res) => {
   res.send(candidates);
 });
 
-// Add candidate (admin only)
+// Add candidate (admin only) - now allows multiple candidates per position
 router.post("/admin/candidates", verifyToken, async (req, res) => {
   const { name, post, description } = req.body;
-  await Candidate.create({ name, post, description });
+
+  await Candidate.create({
+    name,
+    post,
+    description,
+    adminId: req.user.id,
+  });
+
   res.send({ message: "Candidate added" });
 });
 
@@ -49,7 +56,7 @@ router.post("/vote", async (req, res) => {
     return res.status(400).send({ message: "Candidate not found" });
   }
 
-  await Vote.create({ matric, candidateId });
+  await Vote.create({ matric, candidateId, adminId: candidate.adminId });
   candidate.votes += 1;
   await candidate.save();
 
