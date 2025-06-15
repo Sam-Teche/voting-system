@@ -36,9 +36,8 @@ router.post("/signup", async (req, res) => {
   });
 
   // Send verification email
-  const verificationUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/admin/verify-email/${verificationToken}`;
+  const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
+
 
   const emailHtml = `
     <h2>Verify Your Admin Account</h2>
@@ -149,9 +148,8 @@ router.post("/resend-verification", async (req, res) => {
   await admin.save();
 
   // Send verification email
-  const verificationUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/admin/verify-email/${verificationToken}`;
+  const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
+
 
   const emailHtml = `
     <h2>Verify Your Admin Account</h2>
