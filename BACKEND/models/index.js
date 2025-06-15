@@ -23,15 +23,23 @@ const WhitelistSchema = new mongoose.Schema({
 
 const CandidateSchema = new mongoose.Schema({
   name: String,
-  post: String,
+  post: String, // This is the position (President, Secretary, etc.)
   description: String,
   votes: { type: Number, default: 0 },
+  adminId: mongoose.Schema.Types.ObjectId, // Added to track which admin added the candidate
 });
 
+// Updated VoteSchema to support voting for multiple positions
 const VoteSchema = new mongoose.Schema({
-  matric: { type: String, unique: true },
+  matric: String, // Removed unique constraint
   candidateId: mongoose.Schema.Types.ObjectId,
+  position: String, // Added to track which position this vote is for
+  adminId: mongoose.Schema.Types.ObjectId, // Added for consistency
+  timestamp: { type: Date, default: Date.now }, // Added to track when vote was cast
 });
+
+// Compound unique index: one vote per student per position
+VoteSchema.index({ matric: 1, position: 1 }, { unique: true });
 
 const LinkSchema = new mongoose.Schema({
   url: String,
