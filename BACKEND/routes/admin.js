@@ -103,11 +103,11 @@ router.post("/login", async (req, res) => {
   const admin = await Admin.findOne({ email });
   if (!admin) return res.status(400).send({ message: "Admin not found" });
 
-  /*if (!admin.isEmailVerified) {
+  if (!admin.isEmailVerified) {
     return res
       .status(400)
       .send({ message: "Please verify your email before logging in" });
-  }*/
+  }
 
   const valid = await bcrypt.compare(password, admin.password);
   if (!valid) return res.status(400).send({ message: "Invalid credentials" });
