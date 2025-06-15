@@ -199,4 +199,17 @@ router.post("/resend-verification", async (req, res) => {
   res.send({ message: "Verification email resent successfully" });
 });
 
+
+const { Candidate } = require("../models");
+
+// Admin: View all candidates
+router.get("/candidates", verifyToken, async (req, res) => {
+  try {
+    const candidates = await Candidate.find();
+    res.send({ candidates });
+  } catch (err) {
+    res.status(500).send({ message: "Failed to fetch candidates" });
+  }
+});
+
 module.exports = router;
