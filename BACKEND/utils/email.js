@@ -25,16 +25,20 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
-      from: EMAIL_USER,
-      to: to,
-      subject: subject,
-      html: html,
+      from: `"Voting System" <${EMAIL_USER}>`,
+      to,
+      subject,
+      html,
     };
 
     await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent to:", to); // success log
     return true;
   } catch (error) {
-    console.error("Email sending error:", error);
+    console.error(
+      "❌ Email sending error:",
+      error.response || error.message || error
+    );
     return false;
   }
 };
