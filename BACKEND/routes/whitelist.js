@@ -16,6 +16,7 @@ router.get("/whitelist", verifyToken, async (req, res) => {
 });
   
 
+
 // Add single matric to whitelist (admin only)
 router.post("/whitelist", verifyToken, async (req, res) => {
   const { matric } = req.body;

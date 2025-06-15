@@ -210,6 +210,8 @@ router.post("/vote", async (req, res) => {
       adminId: candidate.adminId,
     });
 
+    await Whitelist.updateOne({ matric }, { $set: { voted: true } });
+
     // Update candidate vote count
     candidate.votes += 1;
     await candidate.save();

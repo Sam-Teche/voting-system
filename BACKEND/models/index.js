@@ -18,7 +18,8 @@ const StudentVerificationSchema = new mongoose.Schema({
 });
 
 const WhitelistSchema = new mongoose.Schema({
-  matric: { type: String, unique: true },
+  matric: { type: String, required: true, unique: true },
+  voted: { type: Boolean, default: false }, // ✅ required for tracking votes
 });
 
 const CandidateSchema = new mongoose.Schema({
