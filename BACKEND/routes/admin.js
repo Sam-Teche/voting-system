@@ -24,7 +24,8 @@ router.post("/signup", async (req, res) => {
 
   // Generate verification token
   const verificationToken = crypto.randomBytes(32).toString("hex");
-  const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  console.log("⏳ Token will expire at:", verificationExpires.toLocaleString());
 
   const hashed = await bcrypt.hash(password, 10);
 
@@ -40,12 +41,17 @@ router.post("/signup", async (req, res) => {
   console.log("📩 Attempting to send email to:", email);
   console.log("🔗 Verification link:", verificationUrl);
   const emailHtml = `
-    <h2>Verify Your Admin Account</h2>
-    <p>Please click the link below to verify your email address:</p>
-    <a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;">Verify Email</a>
-    <p>This link will expire in 24 hours.</p>
-    <p>If you didn't create this account, please ignore this email.</p>
-  `;
+  <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+    <h2 style="color: #4CAF50;">Verify Your Admin Account</h2>
+    <p>Hello,</p>
+    <p>Please click the button below to verify your email address:</p>
+    <a href="${verificationUrl}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Verify Email</a>
+    <p style="margin-top: 20px;">This link will expire on <strong>${verificationExpires.toLocaleString()}</strong>.</p>
+    <p>If you didn't create this account, you can ignore this email.</p>
+    <hr style="margin-top: 30px;" />
+    <small style="color: #777;">Voting System • ${new Date().getFullYear()}</small>
+  </div>
+`;
 
   const emailSent = await sendEmail(
     email,
@@ -55,12 +61,17 @@ router.post("/signup", async (req, res) => {
   console.log("📨 Email sent status:", emailSent);
 
   if (!emailSent) {
-    await Admin.findByIdAndDelete(admin._id);
-    return res
-      .status(500)
-      .send({ message: "Failed to send verification email" });
-  }
+    console.warn("⚠️ Verification email failed. Manually send this link:");
+    console.warn("🔗", verificationUrl);
+    console.warn("🕒 Expires at:", verificationExpires.toLocaleString());
 
+    return res.status(500).send({
+      message:
+        "Failed to send verification email. Admin not deleted so you can try resending.",
+      manualLink: verificationUrl,
+      expiresAt: verificationExpires,
+    });
+  }
   res.send({
     message:
       "Admin registered. Please check your email to verify your account.",
@@ -142,8 +153,8 @@ router.post("/resend-verification", async (req, res) => {
 
   // Generate new verification token
   const verificationToken = crypto.randomBytes(32).toString("hex");
-  const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
+  const verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  console.log("⏳ Token will expire at:", verificationExpires.toLocaleString());
   admin.emailVerificationToken = verificationToken;
   admin.emailVerificationExpires = verificationExpires;
   await admin.save();
@@ -153,11 +164,17 @@ router.post("/resend-verification", async (req, res) => {
   console.log("📩 Attempting to send email to:", email);
   console.log("🔗 Verification link:", verificationUrl);
   const emailHtml = `
-    <h2>Verify Your Admin Account</h2>
-    <p>Please click the link below to verify your email address:</p>
-    <a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;">Verify Email</a>
-    <p>This link will expire in 24 hours.</p>
-  `;
+  <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+    <h2 style="color: #4CAF50;">Verify Your Admin Account</h2>
+    <p>Hello,</p>
+    <p>Please click the button below to verify your email address:</p>
+    <a href="${verificationUrl}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Verify Email</a>
+    <p style="margin-top: 20px;">This link will expire on <strong>${verificationExpires.toLocaleString()}</strong>.</p>
+    <p>If you didn't create this account, you can ignore this email.</p>
+    <hr style="margin-top: 30px;" />
+    <small style="color: #777;">Voting System • ${new Date().getFullYear()}</small>
+  </div>
+`;
 
   const emailSent = await sendEmail(
     email,
@@ -167,9 +184,16 @@ router.post("/resend-verification", async (req, res) => {
   console.log("📨 Email sent status:", emailSent);
 
   if (!emailSent) {
-    return res
-      .status(500)
-      .send({ message: "Failed to send verification email" });
+    console.warn("⚠️ Verification email failed. Manually send this link:");
+    console.warn("🔗", verificationUrl);
+    console.warn("🕒 Expires at:", verificationExpires.toLocaleString());
+
+    return res.status(500).send({
+      message:
+        "Failed to send verification email. Admin not deleted so you can try resending.",
+      manualLink: verificationUrl,
+      expiresAt: verificationExpires,
+    });
   }
 
   res.send({ message: "Verification email resent successfully" });
