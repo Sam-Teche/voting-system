@@ -4,18 +4,11 @@ const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Get whitelist (admin only)
-router.get("/whitelist", verifyToken, async (req, res) => {
-  const whitelist = await Whitelist.find().select("matric");
-  res.send(whitelist.map((w) => w.matric));
-});
-
+// ✅ CORRECT GET WHITELIST ROUTE
 router.get("/whitelist", verifyToken, async (req, res) => {
   const whitelist = await Whitelist.find().select("matric voted");
   res.send(whitelist);
 });
-  
-
 
 // Add single matric to whitelist (admin only)
 router.post("/whitelist", verifyToken, async (req, res) => {

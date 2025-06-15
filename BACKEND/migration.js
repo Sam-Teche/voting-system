@@ -1,47 +1,48 @@
-// migration.js - Run this once to update existing data
 const mongoose = require("mongoose");
-const { Vote, Candidate } = require("./models"); // Adjust path as needed
+const { Vote, Candidate } = require("./models"); // Adjust if needed
+
+const DB_URI = "your_mongo_uri"; // replace this
 
 async function migrateVotes() {
   try {
-    console.log("Starting vote migration...");
+    await mongoose.connect(DB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to DB. Starting vote migration...");
 
-    // Get all existing votes
     const existingVotes = await Vote.find({});
     console.log(`Found ${existingVotes.length} existing votes`);
 
     for (const vote of existingVotes) {
-      // Find the candidate to get the position
       const candidate = await Candidate.findById(vote.candidateId);
 
       if (candidate) {
-        // Update the vote with position information
         await Vote.findByIdAndUpdate(vote._id, {
           position: candidate.post,
           timestamp: vote.timestamp || new Date(),
-          // Add adminId if you have this information
+          adminId: candidate.adminId, // if needed
         });
 
         console.log(
           `Updated vote for matric ${vote.matric} - position: ${candidate.post}`
         );
       } else {
-        console.log(`Warning: Candidate not found for vote ${vote._id}`);
+        console.warn(`⚠️ Candidate not found for vote ID ${vote._id}`);
       }
     }
 
-    console.log("Migration completed successfully!");
-
-    // Create the compound index
     await Vote.collection.createIndex(
       { matric: 1, position: 1 },
       { unique: true }
     );
-    console.log("Compound index created successfully!");
+
+    console.log("✅ Migration and index creation completed!");
+    process.exit(0);
   } catch (error) {
-    console.error("Migration failed:", error);
+    console.error("❌ Migration failed:", error);
+    process.exit(1);
   }
 }
 
-// Run migration
 migrateVotes();
