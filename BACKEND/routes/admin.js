@@ -102,6 +102,7 @@ router.post("/login", async (req, res) => {
 
   const admin = await Admin.findOne({ email });
   if (!admin) return res.status(400).send({ message: "Admin not found" });
+  
 
   if (!admin.isEmailVerified) {
     return res
@@ -115,6 +116,18 @@ router.post("/login", async (req, res) => {
   const token = jwt.sign({ id: admin._id }, JWT_SECRET);
   res.send({ message: "Login successful", token });
 });
+
+router.get("/test-email", async (req, res) => {
+  const sent = await sendEmail(
+    "ogunrindesam@gmail.com",
+    "Test",
+    "<h1>Hello</h1>"
+  );
+  if (sent) return res.send("Email sent successfully");
+  return res.status(500).send("Email failed");
+});
+
+
 
 // Resend Admin Verification Email
 router.post("/resend-verification", async (req, res) => {
