@@ -37,8 +37,8 @@ router.post("/signup", async (req, res) => {
 
   // Send verification email
   const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
-
-
+  console.log("📩 Attempting to send email to:", email);
+  console.log("🔗 Verification link:", verificationUrl);
   const emailHtml = `
     <h2>Verify Your Admin Account</h2>
     <p>Please click the link below to verify your email address:</p>
@@ -52,6 +52,7 @@ router.post("/signup", async (req, res) => {
     "Verify Your Admin Account",
     emailHtml
   );
+  console.log("📨 Email sent status:", emailSent);
 
   if (!emailSent) {
     await Admin.findByIdAndDelete(admin._id);
@@ -149,8 +150,8 @@ router.post("/resend-verification", async (req, res) => {
 
   // Send verification email
   const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
-
-
+  console.log("📩 Attempting to send email to:", email);
+  console.log("🔗 Verification link:", verificationUrl);
   const emailHtml = `
     <h2>Verify Your Admin Account</h2>
     <p>Please click the link below to verify your email address:</p>
@@ -163,6 +164,7 @@ router.post("/resend-verification", async (req, res) => {
     "Verify Your Admin Account",
     emailHtml
   );
+  console.log("📨 Email sent status:", emailSent);
 
   if (!emailSent) {
     return res
