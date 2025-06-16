@@ -8,13 +8,18 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <h1 id="progress-title" class="progress-title">Website still in progress</h1>
+<h1 id="progress-bar-container" class="progress-bar-container">
+    <progress id="main-progress" class="main-progress" value="70" max="100"></progress>
+</h1>
+    
     <div class="container">
         <!-- Navigation -->
         <div class="nav-buttons">
             <button onclick="showPage('login')">Student Login</button>
             <button onclick="showPage('admin-login')">Admin Login</button>
             <button onclick="showPage('admin-signup')">Admin Signup</button>
-            <button onclick="showPage('results')" id="resultsBtn">Results</button>
+            <!--<button onclick="showPage('results')" id="resultsBtn">Results</button>-->
         </div>
 
         <!-- Student Login Page -->
@@ -32,13 +37,47 @@
             <div id="loginMessage"></div>
         </div>
 
-        <!-- Voting Page -->
-        <div id="voting" class="page">
-            <h1>Cast Your Vote</h1>
-            <div id="candidatesList"></div>
-            <button onclick="submitVote()" id="submitVoteBtn" disabled>Submit Vote</button>
-            <div id="voteMessage"></div>
+<!-- Voting Page -->
+<div id="voting" class="page">
+    <div class="voting-header">
+      <h1>Student Election 2025</h1>
+      <p>Select one candidate for each position to cast your vote</p>
+    </div>
+  
+    <div class="voting-container">
+      <!-- Message Display -->
+      <div id="voteMessage" class="message-container" style="margin-bottom: 1rem; font-weight: bold;"></div>
+  
+      <!-- Progress Indicator -->
+      <div class="progress-indicator">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span>Voting Progress</span>
+          <span id="progressText">0/0 positions selected</span>
         </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+  
+      <!-- Dynamic Candidates Rendered Here -->
+      <div id="candidatesList"></div>
+  
+      <!-- Selection Summary -->
+      <div class="selection-summary" id="selectionSummary" style="display: none;">
+        <h4 style="margin-top: 0; color: #3730a3;">Your Selections:</h4>
+        <div id="selections"></div>
+      </div>
+  
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <button id="submitVoteBtn" onclick="submitVote()" disabled>
+          Select Candidates
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  
 
         <!-- Admin Signup Page -->
         <div id="admin-signup" class="page">
@@ -83,6 +122,7 @@
                 <button onclick="showAdminSection('whitelist')">Manage Whitelist</button>
                 <button onclick="showAdminSection('links')">Generate Links</button>
                 <button onclick="showAdminSection('admin-results')">View Results</button>
+                <button onclick="testToken()">Test Admin Token</button>
                 <button onclick="logout()">Logout</button>
             </div>
 
@@ -114,18 +154,27 @@
             <!-- Whitelist Management -->
             <div id="whitelist" class="admin-section" style="display:none;">
                 <h2>Manage Whitelist</h2>
+
+                <!-- Search bar -->
+                <div class="form-group">
+                    <label for="whitelistSearch">Search Matric:</label>
+                    <input type="text" id="whitelistSearch" placeholder="Search by matric number" />
+                </div>
+
+                <!-- Add single -->
                 <div class="form-group">
                     <label for="newMatricNumber">Add Matric Number:</label>
                     <input type="text" id="newMatricNumber" placeholder="Enter matric number (must start with SVG)">
                 </div>
                 <button onclick="addToWhitelist()">Add to Whitelist</button>
-                
+
+                <!-- Bulk add -->
                 <div class="form-group">
                     <label for="bulkMatricNumbers">Bulk Add (one per line):</label>
                     <textarea id="bulkMatricNumbers" placeholder="SVG001&#10;SVG002&#10;SVG003" rows="5"></textarea>
                 </div>
                 <button onclick="bulkAddToWhitelist()">Bulk Add to Whitelist</button>
-                
+
                 <div id="whitelistMessage"></div>
                 <h3>Current Whitelist:</h3>
                 <div id="whitelistDisplay"></div>
