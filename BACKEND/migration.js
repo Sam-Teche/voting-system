@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Vote, Candidate } = require("./models"); // Adjust if needed
 
-const DB_URI = "your_mongo_uri"; // replace this
+const DB_URI = "mongodb+srv://ogunrindesam:Gx7qsw6f1hY8Mcgx@cluster0.crattvq.mongodb.net/NEW_VOTING_SYSTEM?retryWrites=true&w=majority&appName=Cluster0"; // replace this
 
 async function migrateVotes() {
   try {

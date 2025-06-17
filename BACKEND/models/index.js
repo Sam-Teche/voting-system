@@ -17,9 +17,35 @@ const StudentVerificationSchema = new mongoose.Schema({
   isUsed: { type: Boolean, default: false },
 });
 
+// In your models/Whitelist.js
+// models/Whitelist.js
 const WhitelistSchema = new mongoose.Schema({
-  matric: { type: String, required: true, unique: true },
-  voted: { type: Boolean, default: false }, // ✅ required for tracking votes
+  email: {
+    type: String,
+    default: "", // Ensure default empty string
+    require: true,
+    trim: true,
+    lowercase: true
+  },
+  matric: {
+    type: String,
+    required: true,
+    unique: true,
+    uppercase: true,
+    trim: true
+  },
+  voted: {
+    type: Boolean,
+    default: false
+  }
+}, { 
+  timestamps: true,
+  toJSON: {
+    transform: function(doc, ret) {
+      ret.email = ret.email || ""; // Ensure email exists in JSON output
+      return ret;
+    }
+  }
 });
 
 const CandidateSchema = new mongoose.Schema({
