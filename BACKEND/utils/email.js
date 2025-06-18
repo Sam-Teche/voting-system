@@ -26,9 +26,9 @@ const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
       from: `"Busy Voting System" <${EMAIL_USER}>`,
-      to: email,
-      subject: "Verify Your Admin Account - Voting System",
-      html: emailHtml,
+      to,
+      subject,
+      html,
     };
 
     await transporter.sendMail(mailOptions);
