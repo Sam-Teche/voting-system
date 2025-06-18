@@ -25,10 +25,10 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
-      from: `"Voting System" <${EMAIL_USER}>`,
-      to,
-      subject,
-      html,
+      from: `"Busy Voting System" <${EMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Admin Account - Voting System",
+      html: emailHtml,
     };
 
     await transporter.sendMail(mailOptions);

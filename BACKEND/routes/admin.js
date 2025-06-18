@@ -5,20 +5,25 @@ const crypto = require("crypto");
 const { Admin } = require("../models");
 const { sendEmail } = require("../utils/email");
 const { verifyToken } = require("../middleware/auth");
+const emailTemplates = require("../emailTemplates");
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Admin Signup with Email Verification
 router.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
+  const { firstName, lastName, institution, email, password } = req.body;
+
+  // Check if all required fields are provided
+  if(!firstName || !lastName || !institution || !email || !password)
+    return res.status(400).send({ message: "All fields are required" });
 
   const existing = await Admin.findOne({ email });
   if (existing) {
     return res.status(400).send({ message: "Admin already exists" });
   }
 
-  if (password.length < 8) {
+  if (password.length < 6) {
     return res.status(400).send({ message: "Password too short" });
   }
 
@@ -30,6 +35,9 @@ router.post("/signup", async (req, res) => {
   const hashed = await bcrypt.hash(password, 10);
 
   const admin = await Admin.create({
+    firstName,
+    lastName,
+    institution,
     email,
     password: hashed,
     emailVerificationToken: verificationToken,
@@ -40,18 +48,10 @@ router.post("/signup", async (req, res) => {
   const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
   console.log("📩 Attempting to send email to:", email);
   console.log("🔗 Verification link:", verificationUrl);
-  const emailHtml = `
-  <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
-    <h2 style="color: #4CAF50;">Verify Your Admin Account</h2>
-    <p>Hello,</p>
-    <p>Please click the button below to verify your email address:</p>
-    <a href="${verificationUrl}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Verify Email</a>
-    <p style="margin-top: 20px;">This link will expire on <strong>${verificationExpires.toLocaleString()}</strong>.</p>
-    <p>If you didn't create this account, you can ignore this email.</p>
-    <hr style="margin-top: 30px;" />
-    <small style="color: #777;">Voting System • ${new Date().getFullYear()}</small>
-  </div>
-`;
+  const emailHtml = emailTemplates.adminVerification(
+    verificationUrl,
+    verificationExpires
+  );;
 
   const emailSent = await sendEmail(
     email,
