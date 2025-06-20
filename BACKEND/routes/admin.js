@@ -119,7 +119,7 @@ router.get("/verify-email/:token", async (req, res) => {
       <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
         <h2 style="color: #4CAF50;">Email Verified Successfully!</h2>
         <p>Your admin account has been verified. You can now log in.</p>
-        <a href="https://extraordinary-sprite-215820.netlify.app/admin/login" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Go to Login</a>
+        <a href="https://extraordinary-sprite-215820.netlify.app" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Go to Login</a>
       </body>
     </html>
   `);

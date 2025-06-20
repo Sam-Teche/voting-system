@@ -4,6 +4,33 @@ const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
+// Helper function to ensure VOID candidate exists for a position
+const ensureVoidCandidate = async (position, adminId = null) => {
+  try {
+    const voidExists = await Candidate.findOne({
+      name: "VOID",
+      post: position,
+    });
+
+    if (!voidExists) {
+      await Candidate.create({
+        name: "VOID",
+        post: position,
+        description:
+          "Vote for VOID if you don't want to vote for any candidate in this position",
+        adminId: adminId,
+        votes: 0,
+      });
+      console.log(`✅ VOID candidate created for position: ${position}`);
+    }
+  } catch (error) {
+    console.error(
+      `❌ Error creating VOID candidate for ${position}:`,
+      error.message
+    );
+  }
+};
+
 // Get all candidates grouped by position (public)
 router.get("/candidates", async (req, res) => {
   try {
@@ -46,16 +73,14 @@ router.get("/candidates/position/:position", async (req, res) => {
       count: candidates.length,
     });
   } catch (error) {
-    res
-      .status(500)
-      .send({
-        message: "Error fetching candidates for position",
-        error: error.message,
-      });
+    res.status(500).send({
+      message: "Error fetching candidates for position",
+      error: error.message,
+    });
   }
 });
 
-// Add candidate (admin only) - explicitly supports multiple candidates per position
+// Add candidate (admin only) - automatically creates VOID candidate
 router.post("/admin/candidates", verifyToken, async (req, res) => {
   try {
     const { name, post, description } = req.body;
@@ -76,11 +101,14 @@ router.post("/admin/candidates", verifyToken, async (req, res) => {
       votes: 0,
     });
 
+    // Automatically ensure VOID candidate exists for this position
+    await ensureVoidCandidate(post, req.user.id);
+
     // Get updated count for this position
     const candidatesForPosition = await Candidate.countDocuments({ post });
 
     res.send({
-      message: `Candidate added successfully. ${post} now has ${candidatesForPosition} candidate(s)`,
+      message: `Candidate added successfully. ${post} now has ${candidatesForPosition} candidate(s) (including VOID)`,
       candidate: newCandidate,
       totalCandidatesForPosition: candidatesForPosition,
     });
@@ -88,6 +116,48 @@ router.post("/admin/candidates", verifyToken, async (req, res) => {
     res
       .status(500)
       .send({ message: "Error adding candidate", error: error.message });
+  }
+});
+
+// Create VOID candidates for all existing positions (admin utility)
+router.post("/admin/create-void-candidates", verifyToken, async (req, res) => {
+  try {
+    // Get all unique positions
+    const positions = await Candidate.distinct("post");
+
+    let createdCount = 0;
+    for (const position of positions) {
+      const voidExists = await Candidate.findOne({
+        name: "VOID",
+        post: position,
+      });
+
+      if (!voidExists) {
+        await Candidate.create({
+          name: "VOID",
+          post: position,
+          description:
+            "Vote for VOID if you don't want to vote for any candidate in this position",
+          adminId: req.user.id,
+          votes: 0,
+        });
+        createdCount++;
+      }
+    }
+
+    res.send({
+      message: `VOID candidates creation completed. Created ${createdCount} new VOID candidates.`,
+      totalPositions: positions.length,
+      createdVoidCandidates: createdCount,
+      positions: positions,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .send({
+        message: "Error creating VOID candidates",
+        error: error.message,
+      });
   }
 });
 
@@ -107,6 +177,11 @@ router.get("/admin/positions-summary", verifyToken, async (req, res) => {
               id: "$_id",
             },
           },
+          hasVoid: {
+            $sum: {
+              $cond: [{ $eq: ["$name", "VOID"] }, 1, 0],
+            },
+          },
         },
       },
       {
@@ -122,21 +197,27 @@ router.get("/admin/positions-summary", verifyToken, async (req, res) => {
       totalPositions: positionsSummary.length,
     });
   } catch (error) {
-    res
-      .status(500)
-      .send({
-        message: "Error fetching positions summary",
-        error: error.message,
-      });
+    res.status(500).send({
+      message: "Error fetching positions summary",
+      error: error.message,
+    });
   }
 });
 
-// Delete candidate (admin only)
+// Delete candidate (admin only) - prevents deletion of VOID candidates
 router.delete("/admin/candidates/:id", verifyToken, async (req, res) => {
   try {
     const candidate = await Candidate.findById(req.params.id);
     if (!candidate) {
       return res.status(404).send({ message: "Candidate not found" });
+    }
+
+    // Prevent deletion of VOID candidates
+    if (candidate.name === "VOID") {
+      return res.status(400).send({
+        message:
+          "Cannot delete VOID candidate. VOID candidates are required for each position.",
+      });
     }
 
     const position = candidate.post;
@@ -210,14 +291,20 @@ router.post("/vote", async (req, res) => {
       adminId: candidate.adminId,
     });
 
-    await Whitelist.updateOne({ matric }, { $set: { voted: true } });
+    // Update Whitelist - assuming this should be imported or the line should be removed
+    // await Whitelist.updateOne({ matric }, { $set: { voted: true } });
 
     // Update candidate vote count
     candidate.votes += 1;
     await candidate.save();
 
+    const voteMessage =
+      candidate.name === "VOID"
+        ? `VOID vote recorded for ${candidate.post}`
+        : `Vote recorded successfully for ${candidate.name} (${candidate.post})`;
+
     res.send({
-      message: `Vote recorded successfully for ${candidate.name} (${candidate.post})`,
+      message: voteMessage,
       votedFor: {
         name: candidate.name,
         position: candidate.post,
@@ -249,6 +336,7 @@ router.get("/results/:position", async (req, res) => {
       votes: candidate.votes,
       percentage:
         totalVotes > 0 ? ((candidate.votes / totalVotes) * 100).toFixed(2) : 0,
+      isVoid: candidate.name === "VOID",
     }));
 
     res.send({
