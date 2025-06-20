@@ -26,9 +26,9 @@ const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
       from: `"Busy Voting System" <${EMAIL_USER}>`,
-      to,
-      subject,
-      html,
+      to: to,
+      subject: subject,
+      html: html,
     };
 
     await transporter.sendMail(mailOptions);
@@ -42,5 +42,9 @@ const sendEmail = async (to, subject, html) => {
     return false;
   }
 };
+
+
+
+
 
 module.exports = { sendEmail };

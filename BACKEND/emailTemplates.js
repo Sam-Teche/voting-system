@@ -26,7 +26,7 @@ const emailTemplates = {
               <!-- Content Section -->
               <div style="padding: 50px 40px;">
                   <div style="text-align: center; margin-bottom: 40px;">
-                      <h2 style="color: #2c3e50; font-size: 1.8rem; font-weight: 600; margin: 0 0 16px 0;">Welcome to the Voting System</h2>
+                      <h2 style="color: #2c3e50; font-size: 1.8rem; font-weight: 600; margin: 0 0 16px 0;">Welcome to the Busy Voting System</h2>
                       <p style="color: #5a6c7d; font-size: 1.1rem; line-height: 1.6; margin: 0;">Your admin account has been created successfully. Please verify your email address to complete the setup process.</p>
                   </div>
   

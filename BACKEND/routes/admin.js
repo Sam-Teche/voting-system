@@ -7,6 +7,7 @@ const { sendEmail } = require("../utils/email");
 const { verifyToken } = require("../middleware/auth");
 const emailTemplates = require("../emailTemplates");
 
+
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -59,6 +60,16 @@ router.post("/signup", async (req, res) => {
     emailHtml
   );
   console.log("📨 Email sent status:", emailSent);
+  console.log(typeof admin.emailVerificationExpires);
+  console.log("Token:", verificationToken);
+  console.log("Admin.token:", admin.emailVerificationToken);
+  console.log(
+    "Expires at:",
+    admin.emailVerificationExpires,
+    " | Now:",
+    new Date()
+  );
+  
 
   if (!emailSent) {
     console.warn("⚠️ Verification email failed. Manually send this link:");
@@ -78,19 +89,26 @@ router.post("/signup", async (req, res) => {
   });
 });
 
+
+
+
+
 // Admin Email Verification
 router.get("/verify-email/:token", async (req, res) => {
   const { token } = req.params;
+  console.log("Token:", token);
 
   const admin = await Admin.findOne({
     emailVerificationToken: token,
-    emailVerificationExpires: { $gt: Date.now() },
+    emailVerificationExpires: { $gt:  Date.now() }, // ✅ FIXED
   });
 
   if (!admin) {
+    console.log("❌ Invalid or expired");
     return res.status(400).send("Invalid or expired verification token");
   }
 
+  console.log("✅ Verified:", admin.email);
   admin.isEmailVerified = true;
   admin.emailVerificationToken = undefined;
   admin.emailVerificationExpires = undefined;
@@ -128,15 +146,7 @@ router.post("/login", async (req, res) => {
   res.send({ message: "Login successful", token });
 });
 
-router.get("/test-email", async (req, res) => {
-  const sent = await sendEmail(
-    "ogunrindesam@gmail.com",
-    "Test",
-    "<h1>Hello</h1>"
-  );
-  if (sent) return res.send("Email sent successfully");
-  return res.status(500).send("Email failed");
-});
+
 
 
 
@@ -163,18 +173,10 @@ router.post("/resend-verification", async (req, res) => {
   const verificationUrl = `https://voting-backend-yf6o.onrender.com/api/admin/verify-email/${verificationToken}`;
   console.log("📩 Attempting to send email to:", email);
   console.log("🔗 Verification link:", verificationUrl);
-  const emailHtml = `
-  <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
-    <h2 style="color: #4CAF50;">Verify Your Admin Account</h2>
-    <p>Hello,</p>
-    <p>Please click the button below to verify your email address:</p>
-    <a href="${verificationUrl}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Verify Email</a>
-    <p style="margin-top: 20px;">This link will expire on <strong>${verificationExpires.toLocaleString()}</strong>.</p>
-    <p>If you didn't create this account, you can ignore this email.</p>
-    <hr style="margin-top: 30px;" />
-    <small style="color: #777;">Voting System • ${new Date().getFullYear()}</small>
-  </div>
-`;
+  const emailHtml = emailTemplates.adminVerification(
+    verificationUrl,
+    verificationExpires
+  );
 
   const emailSent = await sendEmail(
     email,
