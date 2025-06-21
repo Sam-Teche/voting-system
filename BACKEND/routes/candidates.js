@@ -213,7 +213,7 @@ router.delete("/admin/candidates/:id", verifyToken, async (req, res) => {
     }
 
     // Prevent deletion of VOID candidates
-    if (candidate.name === "VOID") {
+   /* if (candidate.name === "VOID") {
       return res.status(400).send({
         message:
           "Cannot delete VOID candidate. VOID candidates are required for each position.",
@@ -222,7 +222,7 @@ router.delete("/admin/candidates/:id", verifyToken, async (req, res) => {
 
     const position = candidate.post;
     await Candidate.findByIdAndDelete(req.params.id);
-
+      */
     // Get remaining count for this position
     const remainingCandidates = await Candidate.countDocuments({
       post: position,
