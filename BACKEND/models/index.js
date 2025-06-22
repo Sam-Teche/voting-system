@@ -17,6 +17,28 @@ const StudentVerificationSchema = new mongoose.Schema({
   isUsed: { type: Boolean, default: false },
 });
 
+
+const VotingCodeSchema = new mongoose.Schema({
+  code: {
+    type: String,
+    required: true,
+    length: 5,
+  },
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const VotingCode = mongoose.model("VotingCode", VotingCodeSchema);
+
+
+
 // In your models/Whitelist.js
 // models/Whitelist.js
 const WhitelistSchema = new mongoose.Schema({
