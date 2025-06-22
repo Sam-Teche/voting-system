@@ -52,6 +52,15 @@ router.post("/whitelist", verifyToken, async (req, res) => {
       entry: newEntry,
     });
   } catch (err) {
+    // Duplicate matric?
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.matric) {
+      return res
+        .status(400)
+        .send({
+          message: `Matric ${matric.toUpperCase()} is already whitelisted`,
+        });
+    }
+    console.error("Error adding to whitelist:", err);
     res
       .status(500)
       .send({ message: "Error adding to whitelist", error: err.message });
