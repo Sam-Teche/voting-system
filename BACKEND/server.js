@@ -31,6 +31,7 @@ const whitelistRoutes = require("./routes/whitelist");
 const linkRoutes = require("./routes/links");
 const resultRoutes = require("./routes/results");
 const votingRoutes = require("./routes/voting"); // ✅ NEW route
+const votingcodeRoutes = require("./routes/votingcode"); // ✅ NEW route
 
 // Use routes
 app.use("/api/admin", adminRoutes);
@@ -40,6 +41,7 @@ app.use("/api/admin", whitelistRoutes);
 app.use("/api/admin", linkRoutes);
 app.use("/api/admin", resultRoutes);
 app.use("/api", votingRoutes); // ✅ Use the /verify-student endpoint here
+app.use("/api/admin", votingcodeRoutes);
 
 // START SERVER
 app.listen(PORT, () => {

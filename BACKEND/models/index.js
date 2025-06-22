@@ -45,7 +45,7 @@ const WhitelistSchema = new mongoose.Schema({
   email: {
     type: String,
     default: "", // Ensure default empty string
-    require: true,
+    required: true,
     trim: true,
     lowercase: true
   },
@@ -95,17 +95,17 @@ const LinkSchema = new mongoose.Schema({
   created: { type: Date, default: Date.now },
 });
 
+
 // MODELS
 const Admin = mongoose.model("Admin", AdminSchema);
-const StudentVerification = mongoose.model(
-  "StudentVerification",
-  StudentVerificationSchema
-);
+const StudentVerification = mongoose.model("StudentVerification", StudentVerificationSchema);
 const Whitelist = mongoose.model("Whitelist", WhitelistSchema);
 const Candidate = mongoose.model("Candidate", CandidateSchema);
 const Vote = mongoose.model("Vote", VoteSchema);
 const Link = mongoose.model("Link", LinkSchema);
+const VotingCode = mongoose.model("VotingCode", VotingCodeSchema); // ✅ already exists
 
+// ✅ ADD VotingCode to the exports below:
 module.exports = {
   Admin,
   StudentVerification,
@@ -113,4 +113,4 @@ module.exports = {
   Candidate,
   Vote,
   Link,
-};
+  VotingCode // ✅ NOW included!

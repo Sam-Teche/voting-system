@@ -119,33 +119,6 @@ router.get("/verify-email/:token", async (req, res) => {
 });
 
 // Updated Student Login (for direct login without email verification)
-router.post("/login", async (req, res) => {
-  const email = req.body.email?.trim().toLowerCase();
-  const matric = req.body.matric?.trim().toUpperCase();
 
-
-  if (!matric.startsWith("SVG")) {
-    return res
-      .status(400)
-      .send({ message: "Matric number must start with SVG" });
-  }
-
-  const found = await Whitelist.findOne({
-    email: email.toLowerCase().trim(),
-    matric: matric.toUpperCase().trim(),
-  });
-  if (!found) {
-    return res.status(400).send({
-      message: "You are not a student of Surveying and Geo-Informatics",
-    });
-  }
-
-  const alreadyVoted = await Vote.findOne({ matric });
-  if (alreadyVoted) {
-    return res.status(400).send({ message: "You have already voted" });
-  }
-
-  res.send({ message: "Login successful" });
-});
 
 module.exports = router;
