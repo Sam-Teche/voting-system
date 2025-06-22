@@ -37,34 +37,47 @@ const VotingCodeSchema = new mongoose.Schema({
 
 // In your models/Whitelist.js
 // models/Whitelist.js
-const WhitelistSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    default: "", // Ensure default empty string
-    required: true,
-    trim: true,
-    lowercase: true
+const WhitelistSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      default: "",
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    matric: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
+    voted: {
+      type: Boolean,
+      default: false,
+    },
+    codeUsed: {
+      type: String,
+      default: "",
+    },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+    },
   },
-  matric: {
-    type: String,
-    required: true,
-    unique: true,
-    uppercase: true,
-    trim: true
-  },
-  voted: {
-    type: Boolean,
-    default: false
+  {
+    timestamps: true,
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.email = ret.email || "";
+        return ret;
+      },
+    },
   }
-}, { 
-  timestamps: true,
-  toJSON: {
-    transform: function(doc, ret) {
-      ret.email = ret.email || ""; // Ensure email exists in JSON output
-      return ret;
-    }
-  }
-});
+);
+
 
 const CandidateSchema = new mongoose.Schema({
   name: String,
