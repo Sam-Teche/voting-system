@@ -41,7 +41,7 @@ app.use("/api/admin", whitelistRoutes);
 app.use("/api/admin", linkRoutes);
 app.use("/api/admin", resultRoutes);
 app.use("/api", votingRoutes); // ✅ Use the /verify-student endpoint here
-app.use("/api", votingcodeRoutes);
+app.use("/api/admin", votingcodeRoutes);
 
 // START SERVER
 app.listen(PORT, () => {
