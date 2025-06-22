@@ -7,54 +7,57 @@ const router = express.Router();
 // ✅ GET WHITELIST ROUTE
 router.get("/whitelist", verifyToken, async (req, res) => {
   try {
-    const whitelist = await Whitelist.find().lean(); // Get plain JavaScript objects
+    const whitelist = await Whitelist.find({ adminId: req.user.id })
+      .select("email matric voted codeUsed")
+      .lean();
 
-    // Normalize the data structure
-    const normalizedWhitelist = whitelist.map((entry) => ({
-      _id: entry._id,
-      email: entry.email || "", // Ensure email exists, default to empty string
-      matric: entry.matric,
-      voted: entry.voted || false, // Ensure voted exists
-    }));
-
-    console.log("Normalized whitelist data:", normalizedWhitelist);
-    res.send(normalizedWhitelist);
+    res.send(whitelist);
   } catch (error) {
-    console.error("Whitelist fetch error:", error);
     res.status(500).send({ message: "Failed to fetch whitelist" });
   }
 });
 
 
+
 // Add single entry to whitelist (admin only) - WITH DEBUG
 router.post("/whitelist", verifyToken, async (req, res) => {
-  // Destructure with defaults
-  const { email = "", matric } = req.body;
+  const { email = "", matric, code } = req.body;
+  const adminId = req.user.id;
 
   if (!matric) {
-    // Only matric is truly required now
     return res.status(400).send({ message: "Matric number is required" });
+  }
+
+  let codeUsed = "";
+  if (code) {
+    const codeDoc = await VotingCode.findOne({ code, adminId });
+    if (!codeDoc) {
+      return res
+        .status(400)
+        .send({ message: "Invalid voting code for this admin" });
+    }
+    codeUsed = code;
   }
 
   try {
     const newEntry = await Whitelist.create({
       email: email.trim().toLowerCase(),
       matric: matric.trim().toUpperCase(),
+      codeUsed,
+      adminId,
     });
 
     res.send({
       message: "Student added to whitelist",
-      entry: {
-        _id: newEntry._id,
-        email: newEntry.email || "",
-        matric: newEntry.matric,
-        voted: newEntry.voted || false,
-      },
+      entry: newEntry,
     });
   } catch (err) {
-    // ... existing error handling
+    res
+      .status(500)
+      .send({ message: "Error adding to whitelist", error: err.message });
   }
 });
+
 
 // Bulk add to whitelist (admin only)
 // Bulk add to whitelist (admin only) - FIXED VERSION
@@ -174,6 +177,8 @@ router.delete("/whitelist/:matric", verifyToken, async (req, res) => {
     res.status(500).send({ message: "Error removing matric" });
   }
 });
+
+
 
 // Debug route to see raw database entries
 router.get("/whitelist/debug", verifyToken, async (req, res) => {
