@@ -35,10 +35,6 @@ const VotingCodeSchema = new mongoose.Schema({
   },
 });
 
-const VotingCode = mongoose.model("VotingCode", VotingCodeSchema);
-
-
-
 // In your models/Whitelist.js
 // models/Whitelist.js
 const WhitelistSchema = new mongoose.Schema({
@@ -114,3 +110,4 @@ module.exports = {
   Vote,
   Link,
   VotingCode // ✅ NOW included!
+}
