@@ -1,20 +1,19 @@
 const express = require("express");
-const { Whitelist, VotingCode } = require("../models");
+const { Whitelist } = require("../models/Whitelist");
+const VotingCode = require("../models/VotingCode");
 const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-// ✅ Verify login with code + whitelist check
+// 🧑‍🎓 Student verifies eligibility
 router.post("/verify-student", async (req, res) => {
   const { email, matric, code } = req.body;
 
-  // Step 1: Check if code is valid
   const votingCode = await VotingCode.findOne({ code });
   if (!votingCode) {
     return res.status(400).send({ message: "Invalid voting code" });
   }
 
-  // Step 2: Check if student exists in whitelist under that admin
   const whitelistEntry = await Whitelist.findOne({
     email: email.toLowerCase().trim(),
     matric: matric.toUpperCase().trim(),
@@ -29,11 +28,33 @@ router.post("/verify-student", async (req, res) => {
     return res.status(400).send({ message: "You have already voted" });
   }
 
-  // ✅ Passed all checks
-  res.send({
-    message: "Verified, you can vote",
-    adminId: votingCode.adminId, // you'll use this when casting the vote
-  });
+  res.send({ message: "Verified, you can vote", adminId: votingCode.adminId });
+});
+
+// 🧑‍💼 Admin generates a 5-digit code
+router.post("/generate-code", verifyToken, async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
+
+    const existing = await VotingCode.findOne({ code, adminId });
+    if (existing)
+      return res
+        .status(400)
+        .send({ message: "Code already exists. Try again." });
+
+    const newCode = await VotingCode.create({ code, adminId });
+
+    res.send({
+      message: "Voting code generated successfully",
+      code: newCode.code,
+      createdAt: newCode.createdAt,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ message: "Error generating code", error: error.message });
+  }
 });
 
 module.exports = router;
