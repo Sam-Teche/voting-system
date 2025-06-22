@@ -1,5 +1,5 @@
 const express = require("express");
-const { Whitelist } = require("../models");
+const { Whitelist, VotingCode } = require("../models");
 const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
