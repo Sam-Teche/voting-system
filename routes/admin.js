@@ -7,7 +7,6 @@ const { sendEmail } = require("../utils/email");
 const { verifyToken } = require("../middleware/auth");
 const emailTemplates = require("../emailTemplates");
 
-
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -16,7 +15,7 @@ router.post("/signup", async (req, res) => {
   const { firstName, lastName, institution, email, password } = req.body;
 
   // Check if all required fields are provided
-  if(!firstName || !lastName || !institution || !email || !password)
+  if (!firstName || !lastName || !institution || !email || !password)
     return res.status(400).send({ message: "All fields are required" });
 
   const existing = await Admin.findOne({ email });
@@ -52,7 +51,7 @@ router.post("/signup", async (req, res) => {
   const emailHtml = emailTemplates.adminVerification(
     verificationUrl,
     verificationExpires
-  );;
+  );
 
   const emailSent = await sendEmail(
     email,
@@ -69,7 +68,6 @@ router.post("/signup", async (req, res) => {
     " | Now:",
     new Date()
   );
-  
 
   if (!emailSent) {
     console.warn("⚠️ Verification email failed. Manually send this link:");
@@ -89,7 +87,6 @@ router.post("/signup", async (req, res) => {
   });
 });
 
-
 // Admin Email Verification
 router.get("/verify-email/:token", async (req, res) => {
   const { token } = req.params;
@@ -97,7 +94,7 @@ router.get("/verify-email/:token", async (req, res) => {
 
   const admin = await Admin.findOne({
     emailVerificationToken: token,
-    emailVerificationExpires: { $gt:  Date.now() }, // ✅ FIXED
+    emailVerificationExpires: { $gt: Date.now() }, // ✅ FIXED
   });
 
   if (!admin) {
@@ -116,7 +113,7 @@ router.get("/verify-email/:token", async (req, res) => {
       <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
         <h2 style="color: #4CAF50;">Email Verified Successfully!</h2>
         <p>Your admin account has been verified. You can now log in.</p>
-        <a href="https://extraordinary-sprite-215820.netlify.app" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Go to Login</a>
+        <a href="https://busyvotingsystem.netlify.app" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Go to Login</a>
       </body>
     </html>
   `);
@@ -128,7 +125,6 @@ router.post("/login", async (req, res) => {
 
   const admin = await Admin.findOne({ email });
   if (!admin) return res.status(400).send({ message: "Admin not found" });
-  
 
   if (!admin.isEmailVerified) {
     return res
@@ -142,10 +138,6 @@ router.post("/login", async (req, res) => {
   const token = jwt.sign({ id: admin._id }, JWT_SECRET);
   res.send({ message: "Login successful", token });
 });
-
-
-
-
 
 // Resend Admin Verification Email
 router.post("/resend-verification", async (req, res) => {
@@ -197,7 +189,6 @@ router.post("/resend-verification", async (req, res) => {
 
   res.send({ message: "Verification email resent successfully" });
 });
-
 
 const { Candidate } = require("../models");
 

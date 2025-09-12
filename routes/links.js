@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Generate voting link (admin only)
 router.post("/generate-link", verifyToken, async (req, res) => {
-  const url = `https://extraordinary-sprite-215820.netlify.app/vote/${uuidv4()}`;
+  const url = `https://busyvotingsystem.netlify.app/vote/${uuidv4()}`;
   await Link.create({ url });
   res.send({ message: "Link generated successfully" });
 });
