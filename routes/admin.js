@@ -1,5 +1,5 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt.js");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { Admin } = require("../models");
@@ -88,9 +88,6 @@ router.post("/signup", async (req, res) => {
       "Admin registered. Please check your email to verify your account.",
   });
 });
-
-
-
 
 
 // Admin Email Verification
