@@ -124,7 +124,7 @@ router.post("/send-verification", async (req, res) => {
         </div>
         
         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hello <strong>${matric}</strong>,</p>
+          <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hello, Voter with matric no <strong>${matric}</strong>,</p>
           
           <p style="font-size: 16px; color: #555; line-height: 1.6;">
             You have requested to verify your email address to participate in the voting process. 
@@ -331,7 +331,7 @@ router.get("/verify-email/:token", async (req, res) => {
     console.log(`Verification completed for matric: ${verification.matric}`);
 
     // FIXED: Redirect to voting page with verified matric
-    const votingUrl = `https://busyvotingsystem.netlify.app/vote?verified=${verification.matric}`;
+    const votingUrl = `https://busyvotingsystem.netlify.app/?verified=${verification.matric}`;
 
     console.log(`Redirecting to: ${votingUrl}`);
 
